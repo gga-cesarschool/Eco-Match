@@ -55,4 +55,5 @@ def sistema_ecomatch():
             print("\n Opção inválida. Tente novamente.")
 
 
-sistema_ecomatch()  # aqui é pra chamar a função, ao invés do return
+if __name__ == "__main__":
+    sistema_ecomatch()  # aqui é pra chamar a função, ao invés do return

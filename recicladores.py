@@ -1,3 +1,6 @@
+import os
+os.system ('cls')
+
 from time import sleep
 
 recicladores = []
@@ -59,12 +62,12 @@ def excluir_reciclador():
 
 def menu():
     print('Sistema de Gestão de Lixo Eletrônico - Recicladores:')
-    print('1 - Cadastrar reciclador')
+    print('\n1 - Cadastrar reciclador')
     print('2 - Listar recicladores')
     print('3 - Atualizar reciclador')
     print('4 - Excluir reciclador')
     print('5 - Sair')
-    return input('Escolha uma opção: ')
+    return input('\nEscolha uma opção: ')
 
 
 while True:

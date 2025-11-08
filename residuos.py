@@ -1,3 +1,6 @@
+import os
+os.system ('cls')
+
 import json
 import os
 
@@ -103,14 +106,14 @@ def excluir_residuo():
 
 def menu():
     while True:
-        print("\n= SISTEMA DE CADASTRO DE RESÍDUOS ELETRÔNICOS ")
-        print("1 - Cadastrar resíduo")
+        print("\nSISTEMA DE CADASTRO DE RESÍDUOS ELETRÔNICOS ")
+        print("\n1 - Cadastrar resíduo")
         print("2 - Listar resíduos")
-        print("3 - Editar resíduo")
-        print("4 - Excluir resíduo")
+        print("3 - Editar resíduos")
+        print("4 - Excluir resíduos")
         print("0 - Sair")
 
-        opcao = input("Escolha uma opção: ")
+        opcao = input("\nEscolha uma opção: ")
 
         if opcao == "1":
             cadastrar_residuo()

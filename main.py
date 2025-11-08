@@ -2,17 +2,17 @@ def sistema_ecomatch():
     empresas = {}  # Dicionário onde a chave será o CNPJ e o valor será outro dicionário com os dados
 
     while True:  # Menu de opções
-        print("\n Bem-vindo ao Sistema EcoMatch! ")
-        print("1. Cadastrar Empresa ")
+        print("\n Bem-vindo ao Sistema Eco-Match! ")
+        print("\n1. Cadastrar Empresa ")
         print("2. Fazer login ")
         print("3. Listar empresas ")
         print("4. Sair ")
 
-        opcao = input("Escolha uma opção: ")
+        opcao = input("\n Escolha uma opção: ")
 
         if opcao == "1":
             print("\n CADASTRO DE EMPRESA ")
-            nome = input("Informe o nome da empresa: ")
+            nome = input("\nInforme o nome da empresa: ")
             cnpj = input("Informe o CNPJ: ")
             email = input("Informe o e-mail: ")
             telefone = input("Informe o telefone de contato: ")
@@ -30,7 +30,7 @@ def sistema_ecomatch():
                 print("\n Empresa cadastrada com sucesso! ")
 
         elif opcao == "2":
-            print("\n LOGIN ")
+            print("\nLOGIN: ")
             cnpj = input("CNPJ: ")
             senha = input("Senha: ")
 

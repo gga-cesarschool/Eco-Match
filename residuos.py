@@ -124,8 +124,7 @@ def menu():
             print("\nEncerrando o sistema... ")
             break
         else:
-            print("\nOpção inválida, tente novamente!")
+            print("\nOpção inválida, tente novamente.")
 
-
-if _name_ == "_main_":
+if __name__== "_main_":
     menu()

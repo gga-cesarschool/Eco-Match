@@ -1,3 +1,6 @@
+import os
+os.system ('cls')
+
 def sistema_ecomatch():
     empresas = {}  # Dicionário onde a chave será o CNPJ e o valor será outro dicionário com os dados
 

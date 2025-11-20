@@ -4,7 +4,7 @@ os.system ('cls')
 import json
 import os
 
-ARQUIVO = "residuos.json"
+ARQUIVO = "residuos.json" # tem que "codar" esse arquivo pois ele está vazio
 
 
 def carregar_dados():
@@ -20,7 +20,7 @@ def salvar_dados(residuos):
 
 
 def cadastrar_residuo():
-    print("\nCADASTRAR RESÍDUO ELETRÔNICO ")
+    print(" CADASTRAR RESÍDUO ELETRÔNICO ")
     nome = input("Nome do resíduo: ")
     tipo = input("Tipo (Ex: Pilha, Bateria, Celular, Computador...): ")
     peso = input("Peso (em kg): ")
@@ -37,13 +37,13 @@ def cadastrar_residuo():
     residuos.append(residuo)
     salvar_dados(residuos)
 
-    print("\nResíduo cadastrado com sucesso!")
+    print(" Resíduo cadastrado com sucesso!")
 
 
 def listar_residuos():
     residuos = carregar_dados()
     if not residuos:
-        print("\nNenhum resíduo cadastrado.")
+        print(" Nenhum resíduo cadastrado.")
         return
 
     print("\n--- LISTA DE RESÍDUOS ELETRÔNICOS ---")
@@ -54,7 +54,7 @@ def listar_residuos():
 def editar_residuo():
     residuos = carregar_dados()
     if not residuos:
-        print("\nNenhum resíduo cadastrado para editar.")
+        print(" Nenhum resíduo cadastrado para editar.")
         return
 
     listar_residuos()
@@ -82,38 +82,38 @@ def editar_residuo():
     }
 
     salvar_dados(residuos)
-    print("\nResíduo atualizado com sucesso!")
+    print(" Resíduo atualizado com sucesso!")
 
 
 def excluir_residuo():
     residuos = carregar_dados()
     if not residuos:
-        print("\nNenhum resíduo cadastrado para excluir.")
+        print(" Nenhum resíduo cadastrado para excluir. ")
         return
 
     listar_residuos()
-    indice = input("\nDigite o número do resíduo que deseja excluir: ")
+    indice = input("Digite o número do resíduo que deseja excluir: ")
 
     if not indice.isdigit() or int(indice) < 1 or int(indice) > len(residuos):
-        print("\nNúmero inválido.")
+        print("Número inválido.")
         return
 
     i = int(indice) - 1
     removido = residuos.pop(i)
     salvar_dados(residuos)
-    print(f"\n Resíduo '{removido['nome']}' excluído com sucesso!")
+    print(f"Resíduo '{removido['nome']}' excluído com sucesso!")
 
 
 def menu():
     while True:
-        print("\nSISTEMA DE CADASTRO DE RESÍDUOS ELETRÔNICOS ")
-        print("\n1 - Cadastrar resíduo")
+        print("SISTEMA DE CADASTRO DE RESÍDUOS ELETRÔNICOS ")
+        print("1 - Cadastrar resíduo")
         print("2 - Listar resíduos")
         print("3 - Editar resíduos")
         print("4 - Excluir resíduos")
         print("0 - Sair")
 
-        opcao = input("\nEscolha uma opção: ")
+        opcao = input("Escolha uma opção: ")
 
         if opcao == "1":
             cadastrar_residuo()
@@ -124,10 +124,10 @@ def menu():
         elif opcao == "4":
             excluir_residuo()
         elif opcao == "0":
-            print("\nEncerrando o sistema... ")
+            print("Encerrando o sistema... ")
             break
         else:
-            print("\nOpção inválida, tente novamente.")
+            print("Opção inválida, tente novamente.")
 
 if __name__== "__main__":
     menu()

@@ -8,23 +8,23 @@ id_atual = 1
 
 
 def cadastrar_reciclador(id_atual):
-    print('Cadastrar Reciclador:')
+    print('Cadastrar Reciclador: ')
     nome = input('Nome do reciclador ou empresa: ')
     cnpj = input('CNPJ/CPF: ')
-    endereco = input('Endereço: ')
-    contato = input('Contato (telefone ou e-mail): ')
-    materiais = input('Materiais que recicla: ')
+    endereco = input(' Endereço: ')
+    contato = input(' Contato (telefone ou e-mail): ')
+    materiais = input(' Materiais que recicla: ')
 
     reciclador = [id_atual, nome, cnpj, endereco, contato, materiais]
     recicladores.append(reciclador)
-    print('\nReciclador cadastrado!\n')
+    print('Reciclador cadastrado! ')
     return id_atual + 1
 
 
 def listar_recicladores():
-    print('Lista de Recicladores:')
+    print('Lista de Recicladores:' )
     if not recicladores:
-        print('\nNenhum reciclador cadastrado.\n')
+        print('Nenhum reciclador cadastrado.' )
     else:
         for r in recicladores:
             print(f'ID: {r[0]} | Nome: {r[1]} | CNPJ/CPF: {r[2]} | '
@@ -33,7 +33,7 @@ def listar_recicladores():
 
 
 def atualizar_reciclador():
-    print('Atualizar Reciclador:')
+    print('Atualizar Reciclador:' )
     id_busca = int(input('Digite o ID do reciclador a atualizar: '))
     for r in recicladores:
         if r[0] == id_busca:
@@ -62,12 +62,12 @@ def excluir_reciclador():
 
 def menu():
     print('Sistema de Gestão de Lixo Eletrônico - Recicladores:')
-    print('\n1 - Cadastrar reciclador')
-    print('2 - Listar recicladores')
-    print('3 - Atualizar reciclador')
-    print('4 - Excluir reciclador')
+    print('1 - Cadastrar reciclador ')
+    print('2 - Listar recicladores ')
+    print('3 - Atualizar reciclador ')
+    print('4 - Excluir reciclador ')
     print('5 - Sair')
-    return input('\nEscolha uma opção: ')
+    return input('Escolha uma opção: ')
 
 
 while True:
@@ -86,4 +86,4 @@ while True:
         sleep(2)
         break
     else:
-        print('Opção inválida.\n')
+        print('Opção inválida.' )

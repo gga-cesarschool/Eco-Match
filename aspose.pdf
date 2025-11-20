@@ -1,0 +1,3 @@
+doc = ap.Document("certificado_ecomatch_premium.pdf")
+doc.form.fields["empresa"].value = " "
+doc.save("saida.pdf")

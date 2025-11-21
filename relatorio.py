@@ -35,7 +35,7 @@ def gerar_pdf():
     conteudo.append(Paragraph("<b>Relatório de Reciclagem</b>", styles["Title"]))
     conteudo.append(Spacer(1, 20))
 
-    # ---------------------- RESÍDUOS PENDENTES ----------------------
+    # RESÍDUOS PENDENTES 
     conteudo.append(Paragraph("<b>Resíduos disponíveis (não reciclados):</b>", styles["Heading2"]))
     conteudo.append(Spacer(1, 10))
 
@@ -65,7 +65,7 @@ def gerar_pdf():
 
     conteudo.append(Spacer(1, 20))
 
-    # ---------------------- RESÍDUOS RECICLADOS ----------------------
+    #  RESÍDUOS RECICLADOS 
     conteudo.append(Paragraph("<b>Resíduos reciclados:</b>", styles["Heading2"]))
     conteudo.append(Spacer(1, 10))
 
@@ -96,7 +96,7 @@ def gerar_pdf():
 
     # Salvar PDF
     pdf.build(conteudo)
-    print(f"📄 Relatório gerado com sucesso: {PDF_SAIDA}")
+    print(f" Relatório gerado com sucesso: {PDF_SAIDA}")
 
 
 if __name__ == "__main__":

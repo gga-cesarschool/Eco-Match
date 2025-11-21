@@ -1,133 +1,227 @@
-import os
-os.system ('cls')
-
 import json
 import os
+import bcrypt
+from pathlib import Path
+from datetime import datetime
 
-ARQUIVO = "residuos.json" # tem que "codar" esse arquivo pois ele está vazio
-
-
-def carregar_dados():
-    if os.path.exists(ARQUIVO):
-        with open(ARQUIVO, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return []
-
-
-def salvar_dados(residuos):
-    with open(ARQUIVO, "w", encoding="utf-8") as f:
-        json.dump(residuos, f, indent=4, ensure_ascii=False)
+# Caminhos dos arquivos JSON
+ROOT = Path(__file__).parent
+ARQUIVO_RESIDUOS = ROOT / "banco_de_dados" / "residuos.json"
+ARQUIVO_FORNECEDORES = ROOT / "banco_de_dados" / "info_empresas_fornecedoras.json"
+ARQUIVO_HISTORICO = ROOT / "banco_de_dados" / "historico_fornecimentos.json"
 
 
-def cadastrar_residuo():
-    print(" CADASTRAR RESÍDUO ELETRÔNICO ")
+# -------------------- FUNÇÕES BASE JSON --------------------
+
+def carregar_json(caminho, padrao):
+    if os.path.exists(caminho):
+        with open(caminho, "r", encoding="utf-8") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return padrao
+    return padrao
+
+
+def salvar_json(caminho, conteudo):
+    with open(caminho, "w", encoding="utf-8") as f:
+        json.dump(conteudo, f, indent=4, ensure_ascii=False)
+
+
+# -------------------- RESÍDUOS --------------------
+
+def carregar_residuos():
+    return carregar_json(ARQUIVO_RESIDUOS, [])
+
+
+def salvar_residuos(residuos):
+    salvar_json(ARQUIVO_RESIDUOS, residuos)
+
+
+# -------------------- HISTÓRICO DE FORNECIMENTO --------------------
+
+def carregar_historico():
+    return carregar_json(ARQUIVO_HISTORICO, [])
+
+
+def salvar_historico(historico):
+    salvar_json(ARQUIVO_HISTORICO, historico)
+
+
+# -------------------- LOGIN DO FORNECEDOR --------------------
+
+def carregar_fornecedores():
+    return carregar_json(ARQUIVO_FORNECEDORES, {})
+
+
+def login_fornecedor():
+    fornecedores = carregar_fornecedores()
+
+    print("\n=== LOGIN DO FORNECEDOR ===")
+    cnpj = input("CNPJ: ")
+    senha = input("Senha: ")
+
+    if cnpj not in fornecedores:
+        print("❌ CNPJ ou senha incorretos.")
+        return None
+
+    senha_hash = fornecedores[cnpj]["senha"].encode("utf-8")
+
+    if bcrypt.checkpw(senha.encode("utf-8"), senha_hash):
+        print(f"✅ Login realizado! Bem-vindo(a), {fornecedores[cnpj]['nome']}.\n")
+        return cnpj
+
+    print("❌ CNPJ ou senha incorretos.")
+    return None
+
+
+# -------------------- CRUD RESÍDUOS --------------------
+
+def cadastrar_residuo(cnpj_fornecedor):
+    print("\n=== CADASTRAR RESÍDUO ELETRÔNICO ===")
     nome = input("Nome do resíduo: ")
-    tipo = input("Tipo (Ex: Pilha, Bateria, Celular, Computador...): ")
-    peso = input("Peso (em kg): ")
-    origem = input("Origem (Empresa, Pessoa Física, etc): ")
+    tipo = input("Tipo (Pilha, Celular, Computador, etc.): ")
+    peso = input("Peso (kg): ")
+    origem = input("Origem: ")
 
-    residuo = {
+    res = {
+        "cnpj_fornecedor": cnpj_fornecedor,
         "nome": nome,
         "tipo": tipo,
         "peso": peso,
         "origem": origem
     }
 
-    residuos = carregar_dados()
-    residuos.append(residuo)
-    salvar_dados(residuos)
+    # --- Salvar no arquivo de resíduos ---
+    residuos = carregar_residuos()
+    residuos.append(res)
+    salvar_residuos(residuos)
 
-    print(" Resíduo cadastrado com sucesso!")
+    # --- Registrar no histórico ---
+    historico = carregar_historico()
+
+    historico.append({
+        "data_hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "cnpj_fornecedor": cnpj_fornecedor,
+        "nome_residuo": nome,
+        "tipo": tipo,
+        "peso": peso,
+        "origem": origem
+    })
+
+    salvar_historico(historico)
+
+    print("✅ Resíduo cadastrado e registrado no histórico!\n")
 
 
-def listar_residuos():
-    residuos = carregar_dados()
-    if not residuos:
-        print(" Nenhum resíduo cadastrado.")
+def listar_residuos_do_fornecedor(cnpj):
+    residuos = carregar_residuos()
+    meus = [r for r in residuos if r["cnpj_fornecedor"] == cnpj]
+
+    if not meus:
+        print("Nenhum resíduo cadastrado por você.\n")
         return
 
-    print("\n--- LISTA DE RESÍDUOS ELETRÔNICOS ---")
-    for i, r in enumerate(residuos, start=1):
-        print(f"{i}. Nome: {r['nome']} | Tipo: {r['tipo']} | Peso: {r['peso']} kg | Origem: {r['origem']}")
+    print("\n=== SEUS RESÍDUOS CADASTRADOS ===")
+    for i, r in enumerate(meus, start=1):
+        print(f"{i}. {r['nome']} | {r['tipo']} | {r['peso']}kg | Origem: {r['origem']}")
+    print()
 
 
-def editar_residuo():
-    residuos = carregar_dados()
-    if not residuos:
-        print(" Nenhum resíduo cadastrado para editar.")
+def editar_residuo(cnpj):
+    residuos = carregar_residuos()
+    meus = [r for r in residuos if r["cnpj_fornecedor"] == cnpj]
+
+    if not meus:
+        print("Você não cadastrou nenhum resíduo.")
         return
 
-    listar_residuos()
-    indice = input("\nDigite o número do resíduo que deseja editar: ")
+    listar_residuos_do_fornecedor(cnpj)
 
-    if not indice.isdigit() or int(indice) < 1 or int(indice) > len(residuos):
-        print("\nNúmero inválido.")
-        return
+    indice = input("Número do resíduo para editar: ")
 
-    i = int(indice) - 1
-    r = residuos[i]
-
-    print(f"\nEditando '{r['nome']}' (pressione ENTER para manter o valor atual)")
-
-    novo_nome = input(f"Novo nome [{r['nome']}]: ") or r['nome']
-    novo_tipo = input(f"Novo tipo [{r['tipo']}]: ") or r['tipo']
-    novo_peso = input(f"Novo peso [{r['peso']}]: ") or r['peso']
-    nova_origem = input(f"Nova origem [{r['origem']}]: ") or r['origem']
-
-    residuos[i] = {
-        "nome": novo_nome,
-        "tipo": novo_tipo,
-        "peso": novo_peso,
-        "origem": nova_origem
-    }
-
-    salvar_dados(residuos)
-    print(" Resíduo atualizado com sucesso!")
-
-
-def excluir_residuo():
-    residuos = carregar_dados()
-    if not residuos:
-        print(" Nenhum resíduo cadastrado para excluir. ")
-        return
-
-    listar_residuos()
-    indice = input("Digite o número do resíduo que deseja excluir: ")
-
-    if not indice.isdigit() or int(indice) < 1 or int(indice) > len(residuos):
+    if not indice.isdigit() or int(indice) < 1 or int(indice) > len(meus):
         print("Número inválido.")
         return
 
-    i = int(indice) - 1
-    removido = residuos.pop(i)
-    salvar_dados(residuos)
-    print(f"Resíduo '{removido['nome']}' excluído com sucesso!")
+    item = meus[int(indice) - 1]
+    print("\nPressione ENTER para manter o valor atual.")
+
+    novo_nome = input(f"Novo nome [{item['nome']}]: ") or item['nome']
+    novo_tipo = input(f"Novo tipo [{item['tipo']}]: ") or item['tipo']
+    novo_peso = input(f"Novo peso [{item['peso']}]: ") or item['peso']
+    nova_origem = input(f"Nova origem [{item['origem']}]: ") or item['origem']
+
+    # Atualiza no JSON geral
+    for r in residuos:
+        if r is item:
+            r["nome"] = novo_nome
+            r["tipo"] = novo_tipo
+            r["peso"] = novo_peso
+            r["origem"] = nova_origem
+
+    salvar_residuos(residuos)
+    print("✅ Resíduo atualizado com sucesso!\n")
 
 
-def menu():
+def excluir_residuo(cnpj):
+    residuos = carregar_residuos()
+    meus = [r for r in residuos if r["cnpj_fornecedor"] == cnpj]
+
+    if not meus:
+        print("Nenhum resíduo para excluir.")
+        return
+
+    listar_residuos_do_fornecedor(cnpj)
+
+    indice = input("Número do resíduo para excluir: ")
+
+    if not indice.isdigit() or int(indice) < 1 or int(indice) > len(meus):
+        print("Número inválido.")
+        return
+
+    item = meus[int(indice) - 1]
+    residuos.remove(item)
+    salvar_residuos(residuos)
+
+    print(f"🗑 Resíduo '{item['nome']}' excluído!\n")
+
+
+# -------------------- MENU PRINCIPAL --------------------
+
+def menu_residuos():
+    print("\n=== SISTEMA DE RESÍDUOS (FORNECEDOR) ===")
+    print("1 - Cadastrar resíduo")
+    print("2 - Listar meus resíduos")
+    print("3 - Editar resíduo")
+    print("4 - Excluir resíduo")
+    print("0 - Sair")
+
+    return input("Escolha: ")
+
+
+def sistema_residuos():
+    cnpj_logado = login_fornecedor()
+    if not cnpj_logado:
+        return
+
     while True:
-        print("SISTEMA DE CADASTRO DE RESÍDUOS ELETRÔNICOS ")
-        print("1 - Cadastrar resíduo")
-        print("2 - Listar resíduos")
-        print("3 - Editar resíduos")
-        print("4 - Excluir resíduos")
-        print("0 - Sair")
+        opc = menu_residuos()
 
-        opcao = input("Escolha uma opção: ")
-
-        if opcao == "1":
-            cadastrar_residuo()
-        elif opcao == "2":
-            listar_residuos()
-        elif opcao == "3":
-            editar_residuo()
-        elif opcao == "4":
-            excluir_residuo()
-        elif opcao == "0":
-            print("Encerrando o sistema... ")
+        if opc == "1":
+            cadastrar_residuo(cnpj_logado)
+        elif opc == "2":
+            listar_residuos_do_fornecedor(cnpj_logado)
+        elif opc == "3":
+            editar_residuo(cnpj_logado)
+        elif opc == "4":
+            excluir_residuo(cnpj_logado)
+        elif opc == "0":
+            print("Saindo...")
             break
         else:
-            print("Opção inválida, tente novamente.")
+            print("Opção inválida.")
 
-if __name__== "__main__":
-    menu()
+
+if __name__ == "__main__":
+    sistema_residuos()

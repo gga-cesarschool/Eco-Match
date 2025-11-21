@@ -1,43 +1,103 @@
-import os 
-os.system('cls')
-
-import aspose.pdf as ap       #Aqui é a importação do aspose.pdf que vai interagir e editar o nosso código
-from datetime import datetime #Importação a classe para trabalhar com datas 
-import uuid
-
-
-def gerar_certificados(dados):
-    doc = ap.Document("Certificado de Descarte Correto.pdf")
-
- # Lista de substituições (marcador → valor)
-    substituicoes = {
-        "{{EMPRESA}}": dados["Empresa"],
-        "{{CNPJ}}": dados["cnpj"],
-        "{{UNIDADE}}": dados["unidade"],
-        "{{RESPONSAVEL}}": dados["responsavel"],
-        "{{ENDERECO}}": dados["endereco"],
-        "{{TIPO1}}": dados["tipo1"], 
-        "{{QTD1}}": str(dados["qtd1"]), # converte valores numéricos para texto
-        "{{CLASSE1}}": dados["classe1"],
-        "{{TOTAL_RESIDUOS}}": str(dados["total_residuos"]), 
-        "{{PERCENTUAL_RECICLAGEM}}": f"{dados['percentual']}%", #Adiciona o símbolo de porcentagem depois do valor
-        "{{CO2}}": str(dados["co2"]),
-        "{{STATUS}}": dados["status"],
-        "{{DATA}}": datetime.now().strftime("%d/%m/%Y"), #Para gerar data atual: dia , mes e ano
-        "{{CODIGO}}": str(uuid.uuid4())[:8] # Essa parte vai criar um código de 8 caracteres para o certificado
-    }
-
-    # Substituir os textos no PDF do relatório
-    for marcador, valor in substituicoes.items(): #Iteração de cada marcador no dicionário
-        absorber = ap.text.TextFragmentAbsorber(marcador)
-        doc.pages.accept(absorber) # vai buscando por todo doc
-
-        for fragment in absorber.text_fragments: #Para cada ponto do PDF onde o marcador foi encontrado, substitui seu texto pelo valor correspondente --> Dar enfase
-            fragment.text = valor
-
-    # Salvar PDF final
-    nome_saida = f"certificado_{dados['empresa']. replace(' ', '_')}.pdf" #Cria o nome do arqv final
-    doc.save(nome_saida) #Salva o novo PDF com todos os dados preenchidos
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from pathlib import Path
+import json
+import os
 
 
-    print("Certificado gerado:", nome_saida)
+ROOT = Path(__file__).parent
+ARQUIVO_RESIDUOS = ROOT / "banco_de_dados" / "residuos.json"
+ARQUIVO_RECICLADOS = ROOT / "banco_de_dados" / "residuos_reciclados.json"
+PDF_SAIDA = ROOT / "relatorio_reciclagem.pdf"
+
+
+def carregar_ou_vazio(caminho, padrao):
+    if os.path.exists(caminho):
+        try:
+            with open(caminho, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return padrao
+    return padrao
+
+
+def gerar_pdf():
+    residuos = carregar_ou_vazio(ARQUIVO_RESIDUOS, [])
+    reciclados = carregar_ou_vazio(ARQUIVO_RECICLADOS, [])
+
+    styles = getSampleStyleSheet()
+    pdf = SimpleDocTemplate(str(PDF_SAIDA), pagesize=A4)
+    conteudo = []
+
+    # Título
+    conteudo.append(Paragraph("<b>Relatório de Reciclagem</b>", styles["Title"]))
+    conteudo.append(Spacer(1, 20))
+
+    # ---------------------- RESÍDUOS PENDENTES ----------------------
+    conteudo.append(Paragraph("<b>Resíduos disponíveis (não reciclados):</b>", styles["Heading2"]))
+    conteudo.append(Spacer(1, 10))
+
+    if residuos:
+        tabela_residuos = [["Nome", "Tipo", "Peso (kg)", "Origem", "Fornecedor"]]
+
+        for r in residuos:
+            tabela_residuos.append([
+                r.get("nome", "-"),
+                r.get("tipo", "-"),
+                r.get("peso", "-"),
+                r.get("origem", "-"),
+                r.get("cnpj_fornecedor", "-"),
+            ])
+
+        tabela = Table(tabela_residuos, repeatRows=1)
+        tabela.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),
+            ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ]))
+
+        conteudo.append(tabela)
+    else:
+        conteudo.append(Paragraph("Nenhum resíduo pendente.", styles["BodyText"]))
+
+    conteudo.append(Spacer(1, 20))
+
+    # ---------------------- RESÍDUOS RECICLADOS ----------------------
+    conteudo.append(Paragraph("<b>Resíduos reciclados:</b>", styles["Heading2"]))
+    conteudo.append(Spacer(1, 10))
+
+    if reciclados:
+        tabela_reciclados = [["Nome", "Tipo", "Peso (kg)", "Origem", "Fornecedor", "Recicladora"]]
+
+        for r in reciclados:
+            tabela_reciclados.append([
+                r.get("nome", "-"),
+                r.get("tipo", "-"),
+                r.get("peso", "-"),
+                r.get("origem", "-"),
+                r.get("cnpj_fornecedor", "-"),
+                r.get("cnpj_recicladora", "-"),
+            ])
+
+        tabela = Table(tabela_reciclados, repeatRows=1)
+        tabela.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),
+            ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ]))
+
+        conteudo.append(tabela)
+    else:
+        conteudo.append(Paragraph("Nenhum resíduo reciclado ainda.", styles["BodyText"]))
+
+    # Salvar PDF
+    pdf.build(conteudo)
+    print(f"📄 Relatório gerado com sucesso: {PDF_SAIDA}")
+
+
+if __name__ == "__main__":
+    gerar_pdf()

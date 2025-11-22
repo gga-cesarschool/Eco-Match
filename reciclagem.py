@@ -56,16 +56,16 @@ def login_recicladora():
     senha = input("Senha: ")
 
     if cnpj not in recicladoras:
-        print("❌ CNPJ ou senha incorretos.")
+        print("CNPJ ou senha incorretos.")
         return None
 
     senha_hash = recicladoras[cnpj]["senha"].encode("utf-8")
 
     if bcrypt.checkpw(senha.encode("utf-8"), senha_hash):
-        print(f"✅ Login realizado! Bem-vindo(a), {recicladoras[cnpj]['nome']}.\n")
+        print(f"Login realizado! Bem-vindo(a), {recicladoras[cnpj]['nome']}.\n")
         return cnpj
 
-    print("❌ CNPJ ou senha incorretos.")
+    print("CNPJ ou senha incorretos.")
     return None
 
 
@@ -120,7 +120,7 @@ def reciclar_residuo(cnpj_recicladora):
     salvar_residuos(residuos)
     salvar_reciclados(reciclados)
 
-    print(f"♻ Resíduo '{residuo['nome']}' RECICLADO com sucesso!\n")
+    print(f"Resíduo '{residuo['nome']}' RECICLADO com sucesso!\n")
 
 
 # -------------------- MENU PRINCIPAL DA RECICLADORA --------------------

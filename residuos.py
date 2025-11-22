@@ -62,16 +62,16 @@ def login_fornecedor():
     senha = input("Senha: ")
 
     if cnpj not in fornecedores:
-        print("❌ CNPJ ou senha incorretos.")
+        print("CNPJ ou senha incorretos.")
         return None
 
     senha_hash = fornecedores[cnpj]["senha"].encode("utf-8")
 
     if bcrypt.checkpw(senha.encode("utf-8"), senha_hash):
-        print(f"✅ Login realizado! Bem-vindo(a), {fornecedores[cnpj]['nome']}.\n")
+        print(f"Login realizado! Bem-vindo(a), {fornecedores[cnpj]['nome']}.\n")
         return cnpj
 
-    print("❌ CNPJ ou senha incorretos.")
+    print("CNPJ ou senha incorretos.")
     return None
 
 
@@ -111,7 +111,7 @@ def cadastrar_residuo(cnpj_fornecedor):
 
     salvar_historico(historico)
 
-    print("✅ Resíduo cadastrado e registrado no histórico!\n")
+    print("Resíduo cadastrado e registrado no histórico!\n")
 
 
 def listar_residuos_do_fornecedor(cnpj):
@@ -161,7 +161,7 @@ def editar_residuo(cnpj):
             r["origem"] = nova_origem
 
     salvar_residuos(residuos)
-    print("✅ Resíduo atualizado com sucesso!\n")
+    print("Resíduo atualizado com sucesso!\n")
 
 
 def excluir_residuo(cnpj):
@@ -184,7 +184,7 @@ def excluir_residuo(cnpj):
     residuos.remove(item)
     salvar_residuos(residuos)
 
-    print(f"🗑 Resíduo '{item['nome']}' excluído!\n")
+    print(f"Resíduo '{item['nome']}' excluído!\n")
 
 
 # -------------------- MENU PRINCIPAL --------------------

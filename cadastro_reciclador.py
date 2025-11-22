@@ -43,11 +43,11 @@ def sistema_recicladoras():
             cnpj = input("CNPJ: ")
 
             if not validar_cnpj(cnpj):
-                print("❌ CNPJ inválido!")
+                print("CNPJ inválido!")
                 continue
 
             if cnpj in recicladoras:
-                print("❌ CNPJ já cadastrado!")
+                print("CNPJ já cadastrado!")
                 continue
 
             endereco = input("Endereço: ")
@@ -72,7 +72,7 @@ def sistema_recicladoras():
             salvar_recicladoras(recicladoras)
             recicladoras = carregar_recicladoras()
 
-            print("✅ Recicladora cadastrada com sucesso!")
+            print("Recicladora cadastrada com sucesso!")
 
         # ---------------- VALIDAR CADASTRO -------------------
         elif opcao == "2":
@@ -81,15 +81,15 @@ def sistema_recicladoras():
             senha = input("Senha: ")
 
             if cnpj not in recicladoras:
-                print("❌ CNPJ ou senha incorretos.")
+                print("CNPJ ou senha incorretos.")
                 continue
 
             senha_hash_salva = recicladoras[cnpj]["senha"].encode("utf-8")
 
             if bcrypt.checkpw(senha.encode("utf-8"), senha_hash_salva):
-                print(f"✅ Bem-vindo(a), {recicladoras[cnpj]['nome']}!")
+                print(f"Bem-vindo(a), {recicladoras[cnpj]['nome']}!")
             else:
-                print("❌ CNPJ ou senha incorretos.")
+                print("CNPJ ou senha incorretos.")
 
         # ---------------- LISTAR -------------------
         elif opcao == "3":
@@ -111,7 +111,7 @@ def sistema_recicladoras():
             break
 
         else:
-            print("❌ Opção inválida.")
+            print("Opção inválida.")
 
 
 if __name__ == "__main__":

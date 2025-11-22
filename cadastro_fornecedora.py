@@ -1,27 +1,27 @@
-import os, json, bcrypt 
-from utils import validar_cnpj
-from pathlib import Path
+# Importação das bibliotecas
+import os, json, bcrypt #1-Operações do sistema 2- Para leitura e escrita de dados em formato json 3-criptografia/validação
+from utils import validar_cnpj 
+from pathlib import Path #importação com segurança pra usar diretórios 
 
-ROOT_FOLDER = Path(__file__).parent
-INFO_EMPRESAS_FORNECEDORAS = ROOT_FOLDER / 'banco_de_dados' / 'info_empresas_fornecedoras.json'
+ROOT_FOLDER = Path(__file__).parent #pra definir a pasta atual
+INFO_EMPRESAS_FORNECEDORAS = ROOT_FOLDER / 'banco_de_dados' / 'info_empresas_fornecedoras.json' #caminho até o json. Os dados estarão no BD
 
-#CARREGAR / SALVAR 
-
-def carregar_empresas():
-    if os.path.exists(INFO_EMPRESAS_FORNECEDORAS):
-        with open(INFO_EMPRESAS_FORNECEDORAS, "r", encoding="utf-8") as f:
-            try:
+#Carregar/ salvar 
+def carregar_empresas(): #Função de carregamento dos dados das empresas
+    if os.path.exists(INFO_EMPRESAS_FORNECEDORAS): # verificação do json
+        with open(INFO_EMPRESAS_FORNECEDORAS, "r", encoding="utf-8") as f: #abertura do arquivo para leitura
+            try: 
                 return json.load(f)
-            except json.JSONDecodeError:
-                return {}
-    return {}
+            except json.JSONDecodeError: 
+                return {} #Try -> tenta ler o json e return --> retorna em forma de dicionário
+    return {} #Caso n tenha um arquivo => dicionário vazio
 
 def salvar_empresas(empresas):
-    with open(INFO_EMPRESAS_FORNECEDORAS, "w", encoding="utf-8") as f:
-        json.dump(empresas, f, indent=4, ensure_ascii=False)
+    with open(INFO_EMPRESAS_FORNECEDORAS, "w", encoding="utf-8") as f: #abre o json (utf-8 para nossa linguagem, acentuação e afins)
+        json.dump(empresas, f, indent=4, ensure_ascii=False) # salva os dados em json, formatando com identação
 
 
-# SISTEMA 
+#Sistema EcoMatch
 
 def sistema_ecomatch():
     empresas = carregar_empresas()
@@ -34,7 +34,7 @@ def sistema_ecomatch():
         print("4. Sair")
         opcao = input("Escolha uma opção: ")
 
-        # CADASTRO DE EMPRESAS 
+        #Cadastro das empresas 
         if opcao == "1":
             print("=== CADASTRO DE EMPRESA ===")
             nome = input("Informe o nome da empresa: ")
@@ -52,10 +52,10 @@ def sistema_ecomatch():
             telefone = input("Informe o telefone de contato: ")
             senha_plana = input("Senha: ")
 
-            # CRIPTOGRAFAR SENHA 
+            # Criptografia da senha usando o bcrypt
             senha_hash = bcrypt.hashpw(senha_plana.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-            empresas[cnpj] = {
+            empresas[cnpj] = { # armazenando os dados no dicionario
                 "nome": nome,
                 "email": email,
                 "telefone": telefone,
@@ -66,7 +66,7 @@ def sistema_ecomatch():
             empresas = carregar_empresas()
             print(" Empresa cadastrada com sucesso!")
 
-        # VALIDAÇÃO CADASTRO 
+        #Validação do cadastro
         elif opcao == "2":
             print("=== VALIDAR CADASTRO ===")
             cnpj = input("CNPJ: ")
@@ -76,15 +76,15 @@ def sistema_ecomatch():
                 print(" CNPJ ou senha incorretos.")
                 continue
 
-            senha_hash_salva = empresas[cnpj]["senha"].encode('utf-8')
+            senha_hash_salva = empresas[cnpj]["senha"].encode('utf-8') #recuperação da senha criptografada --> Conversão para bytes
 
-            # VERIFICAR SENHA CRIPTOGRAFADA 
-            if bcrypt.checkpw(senha.encode('utf-8'), senha_hash_salva):
+            # Verificação da senha criptografada
+            if bcrypt.checkpw(senha.encode('utf-8'), senha_hash_salva): #comparação de senha inserida e senha criptografada
                 print(f" O seu cadastro está validado com sucesso! Bem-vindo(a), {empresas[cnpj]['nome']}.")
             else:
                 print(" CNPJ ou senha incorretos.")
 
-        # LISTAR EMPRESAS 
+        # Listagem de empresas
         elif opcao == "3":
             print("=== EMPRESAS CADASTRADAS ===")
             if not empresas:
@@ -93,7 +93,7 @@ def sistema_ecomatch():
                 for cnpj, dados in empresas.items():
                     print(f"{dados['nome']} - {cnpj} - {dados['email']} - {dados['telefone']}")
 
-        #  SAIR 
+        #Saída
         elif opcao == "4":
             print("Encerrando o sistema... ")
             break
@@ -102,5 +102,5 @@ def sistema_ecomatch():
             print(" Opção inválida. Tente novamente.")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": #Execução do sistema somente se o arquivo for rodado de forma direta
     sistema_ecomatch()

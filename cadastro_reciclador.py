@@ -2,22 +2,23 @@ import os, json, bcrypt
 from utils import validar_cnpj
 from pathlib import Path
 
+# -------------------- CONFIGURAÇÕES DE ARQUIVO --------------------
 ROOT_FOLDER = Path(__file__).parent
 INFO_EMPRESAS_RECICLADORAS = ROOT_FOLDER / 'banco_de_dados' / 'info_empresas_recicladoras.json'
 
 
 # -------------------- CARREGAR / SALVAR --------------------
-
+# CARREGA O BANCO DE DADOS DE RECICLADORAS
 def carregar_recicladoras():
-    if os.path.exists(INFO_EMPRESAS_RECICLADORAS):
+    if os.path.exists(INFO_EMPRESAS_RECICLADORAS): 
         with open(INFO_EMPRESAS_RECICLADORAS, "r", encoding="utf-8") as f:
             try:
-                return json.load(f)
-            except json.JSONDecodeError:
+                return json.load(f) # 
+            except json.JSONDecodeError: 
                 return {}
     return {}
 
-
+# SALVA OS DADOS NO ARQUIVO JSON
 def salvar_recicladoras(recicladoras):
     with open(INFO_EMPRESAS_RECICLADORAS, "w", encoding="utf-8") as f:
         json.dump(recicladoras, f, indent=4, ensure_ascii=False)
@@ -26,7 +27,7 @@ def salvar_recicladoras(recicladoras):
 # -------------------- SISTEMA --------------------
 
 def sistema_recicladoras():
-    recicladoras = carregar_recicladoras()
+    recicladoras = carregar_recicladoras() #Carrega os dados das recicladoras
 
     while True:
         print("\n=== SISTEMA DE RECICLADORAS ===")
@@ -42,14 +43,15 @@ def sistema_recicladoras():
             nome = input("Nome da empresa recicladora: ")
             cnpj = input("CNPJ: ")
 
+            # ---- VALIDAR CNPJ ----
             if not validar_cnpj(cnpj):
                 print("CNPJ inválido!")
                 continue
-
+            #-- VERIFICAR SE JÁ ESTÁ CADASTRADO ----
             if cnpj in recicladoras:
                 print("CNPJ já cadastrado!")
                 continue
-
+            #---- COLETAR DEMAIS INFORMAÇÕES ----
             endereco = input("Endereço: ")
             contato = input("Contato (telefone ou e-mail): ")
             materiais = input("Materiais que recicla: ")
@@ -60,7 +62,7 @@ def sistema_recicladoras():
                 senha_plana.encode("utf-8"),
                 bcrypt.gensalt()
             ).decode("utf-8")
-
+            # ---- ARMAZENAR DADOS NO DICIONÁRIO ----
             recicladoras[cnpj] = {
                 "nome": nome,
                 "endereco": endereco,
@@ -69,23 +71,23 @@ def sistema_recicladoras():
                 "senha": senha_hash
             }
 
-            salvar_recicladoras(recicladoras)
-            recicladoras = carregar_recicladoras()
+            salvar_recicladoras(recicladoras) # Salva os dados no arquivo JSON
+            recicladoras = carregar_recicladoras() # Recarrega os dados atualizados
 
             print("Recicladora cadastrada com sucesso!")
 
-        # ---------------- VALIDAR CADASTRO -------------------
+        # ---------------- VALIDAR CADASTRO (LOGIN) -------------------
         elif opcao == "2":
             print("\n=== VALIDAR CADASTRO ===")
             cnpj = input("CNPJ: ")
             senha = input("Senha: ")
-
+            # Verificar se o CNPJ está cadastrado
             if cnpj not in recicladoras:
                 print("CNPJ ou senha incorretos.")
                 continue
-
+            #RECUPERAR A SENHA CRIPTOGRAFADA
             senha_hash_salva = recicladoras[cnpj]["senha"].encode("utf-8")
-
+            #VALIDA COM A SENHA INFORMADA COM A FUNÇÃO bcrypt.checkpw
             if bcrypt.checkpw(senha.encode("utf-8"), senha_hash_salva):
                 print(f"Bem-vindo(a), {recicladoras[cnpj]['nome']}!")
             else:
@@ -97,6 +99,7 @@ def sistema_recicladoras():
             if not recicladoras:
                 print("Nenhuma recicladora cadastrada.")
             else:
+                # EXIBIR DADOS DAS RECICLADORAS
                 for cnpj, r in recicladoras.items():
                     print(
                         f"{r['nome']} - CNPJ: {cnpj}\n"
@@ -113,6 +116,6 @@ def sistema_recicladoras():
         else:
             print("Opção inválida.")
 
-
+#EXECUTA O SISTEMA APENAS SE O ARQUIVO FOR EXECUTADO DIRETAMENTE
 if __name__ == "__main__":
     sistema_recicladoras()

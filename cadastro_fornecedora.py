@@ -4,15 +4,25 @@ from utils import validar_cnpj
 from pathlib import Path #importação com segurança pra usar diretórios 
 
 ROOT_FOLDER = Path(__file__).parent #pra definir a pasta atual
-INFO_EMPRESAS_FORNECEDORAS = ROOT_FOLDER / 'banco_de_dados' / 'info_empresas_fornecedoras.json' #caminho até o json. Os dados estarão no BD
+INFO_EMPRESAS_FORNECEDORAS = ROOT_FOLDER / 'banco_de_dados' / 'info_empresas_fornecedoras.json' 
+INFO_EMPRESAS_RECICLADORAS = ROOT_FOLDER / 'banco_de_dados' / 'info_empresas_recicladoras.json'
 
 #Carregar/ salvar 
-def carregar_empresas(): #Função de carregamento dos dados das empresas
+def carregar_empresas_fornecedoras(): #Função de carregamento dos dados das empresas
     if os.path.exists(INFO_EMPRESAS_FORNECEDORAS): # verificação do json
         with open(INFO_EMPRESAS_FORNECEDORAS, "r", encoding="utf-8") as f: #abertura do arquivo para leitura
             try: 
                 return json.load(f)
             except json.JSONDecodeError: 
+                return {} #Try -> tenta ler o json e return --> retorna em forma de dicionário
+    return {} #Caso n tenha um arquivo => dicionário vazio
+
+def carregar_empresas_recicladoras(): #Função de carregamento dos dados das empresas
+    if os.path.exists(INFO_EMPRESAS_RECICLADORAS): # verificação do json
+        with open(INFO_EMPRESAS_RECICLADORAS, "r", encoding="utf-8") as f: #abertura do arquivo para leitura
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
                 return {} #Try -> tenta ler o json e return --> retorna em forma de dicionário
     return {} #Caso n tenha um arquivo => dicionário vazio
 
@@ -24,7 +34,8 @@ def salvar_empresas(empresas):
 #Sistema EcoMatch
 
 def sistema_ecomatch():
-    empresas = carregar_empresas()
+    empresas_fornecedoras = carregar_empresas_fornecedoras()
+    empresas_recicladoras = carregar_empresas_recicladoras()
 
     while True:
         print(" === Bem-vindo ao Sistema Eco-Match! ===")
@@ -44,7 +55,7 @@ def sistema_ecomatch():
                 print(" CNPJ inválido! Tente novamente.")
                 continue
 
-            if cnpj in empresas:
+            if cnpj in empresas_fornecedoras or cnpj in empresas_recicladoras:
                 print(" CNPJ já cadastrado!")
                 continue
 
@@ -55,15 +66,15 @@ def sistema_ecomatch():
             # Criptografia da senha usando o bcrypt
             senha_hash = bcrypt.hashpw(senha_plana.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-            empresas[cnpj] = { # armazenando os dados no dicionario
+            empresas_fornecedoras[cnpj] = { # armazenando os dados no dicionario
                 "nome": nome,
                 "email": email,
                 "telefone": telefone,
                 "senha": senha_hash    # <-- senha criptografada
             }
 
-            salvar_empresas(empresas)
-            empresas = carregar_empresas()
+            salvar_empresas(empresas_fornecedoras)
+            empresas = carregar_empresas_fornecedoras()
             print(" Empresa cadastrada com sucesso!")
 
         #Validação do cadastro
@@ -72,25 +83,25 @@ def sistema_ecomatch():
             cnpj = input("CNPJ: ")
             senha = input("Senha: ")
 
-            if cnpj not in empresas:
+            if cnpj not in empresas_fornecedoras:
                 print(" CNPJ ou senha incorretos.")
                 continue
 
-            senha_hash_salva = empresas[cnpj]["senha"].encode('utf-8') #recuperação da senha criptografada --> Conversão para bytes
+            senha_hash_salva = empresas_fornecedoras[cnpj]["senha"].encode('utf-8') #recuperação da senha criptografada --> Conversão para bytes
 
             # Verificação da senha criptografada
             if bcrypt.checkpw(senha.encode('utf-8'), senha_hash_salva): #comparação de senha inserida e senha criptografada
-                print(f" O seu cadastro está validado com sucesso! Bem-vindo(a), {empresas[cnpj]['nome']}.")
+                print(f" O seu cadastro está validado com sucesso! Bem-vindo(a), {empresas_fornecedoras[cnpj]['nome']}.")
             else:
                 print(" CNPJ ou senha incorretos.")
 
         # Listagem de empresas
         elif opcao == "3":
             print("=== EMPRESAS CADASTRADAS ===")
-            if not empresas:
+            if not empresas_fornecedoras:
                 print("Nenhuma empresa cadastrada.")
             else:
-                for cnpj, dados in empresas.items():
+                for cnpj, dados in empresas_fornecedoras.items():
                     print(f"{dados['nome']} - {cnpj} - {dados['email']} - {dados['telefone']}")
 
         #Saída

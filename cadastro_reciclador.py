@@ -4,12 +4,13 @@ from pathlib import Path
 
 # -------------------- CONFIGURAÇÕES DE ARQUIVO --------------------
 ROOT_FOLDER = Path(__file__).parent
+INFO_EMPRESAS_FORNECEDORAS = ROOT_FOLDER / 'banco_de_dados' / 'info_empresas_fornecedoras.json' 
 INFO_EMPRESAS_RECICLADORAS = ROOT_FOLDER / 'banco_de_dados' / 'info_empresas_recicladoras.json'
 
 
 # -------------------- CARREGAR / SALVAR --------------------
 # CARREGA O BANCO DE DADOS DE RECICLADORAS
-def carregar_recicladoras():
+def carregar_empresas_recicladoras():
     if os.path.exists(INFO_EMPRESAS_RECICLADORAS): 
         with open(INFO_EMPRESAS_RECICLADORAS, "r", encoding="utf-8") as f:
             try:
@@ -17,6 +18,15 @@ def carregar_recicladoras():
             except json.JSONDecodeError: 
                 return {}
     return {}
+
+def carregar_empresas_fornecedoras(): #Função de carregamento dos dados das empresas
+    if os.path.exists(INFO_EMPRESAS_FORNECEDORAS): # verificação do json
+        with open(INFO_EMPRESAS_FORNECEDORAS, "r", encoding="utf-8") as f: #abertura do arquivo para leitura
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return {} #Try -> tenta ler o json e return --> retorna em forma de dicionário
+    return {} #Caso n tenha um arquivo => dicionário vazio
 
 # SALVA OS DADOS NO ARQUIVO JSON
 def salvar_recicladoras(recicladoras):
@@ -27,7 +37,8 @@ def salvar_recicladoras(recicladoras):
 # -------------------- SISTEMA --------------------
 
 def sistema_recicladoras():
-    recicladoras = carregar_recicladoras() #Carrega os dados das recicladoras
+    recicladoras = carregar_empresas_recicladoras() #Carrega os dados das recicladoras
+    empresas_fornecedoras = carregar_empresas_fornecedoras()
 
     while True:
         print("\n=== SISTEMA DE RECICLADORAS ===")
@@ -48,7 +59,7 @@ def sistema_recicladoras():
                 print("CNPJ inválido!")
                 continue
             #-- VERIFICAR SE JÁ ESTÁ CADASTRADO ----
-            if cnpj in recicladoras:
+            if cnpj in recicladoras or cnpj in empresas_fornecedoras:
                 print("CNPJ já cadastrado!")
                 continue
             #---- COLETAR DEMAIS INFORMAÇÕES ----
@@ -72,7 +83,7 @@ def sistema_recicladoras():
             }
 
             salvar_recicladoras(recicladoras) # Salva os dados no arquivo JSON
-            recicladoras = carregar_recicladoras() # Recarrega os dados atualizados
+            recicladoras = carregar_empresas_recicladoras() # Recarrega os dados atualizados
 
             print("Recicladora cadastrada com sucesso!")
 

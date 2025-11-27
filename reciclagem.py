@@ -152,6 +152,3 @@ def sistema_recicladora():
         else:
             print("Opção inválida.")
 
-
-if __name__ == "__main__":
-    sistema_recicladora()

@@ -113,5 +113,3 @@ def gerar_pdf():
     print(f"📄 Relatório gerado com sucesso: {PDF_SAIDA}")
 
 
-if __name__ == "__main__":
-    gerar_pdf()

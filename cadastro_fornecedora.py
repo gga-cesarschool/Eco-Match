@@ -37,7 +37,7 @@ def sistema_ecomatch():
     empresas_fornecedoras = carregar_empresas_fornecedoras()
     empresas_recicladoras = carregar_empresas_recicladoras()
 
-    print("=== Bem-vindo ao Sistema Eco-Match! ===")
+    print("=== CADASTRO DE EMPRESAS FORNECEDORAS ===")
     while True:
         print("\n Menu:")
         print("1. Cadastrar Empresa")
@@ -114,5 +114,3 @@ def sistema_ecomatch():
             print(" Opção inválida. Tente novamente.")
 
 
-if __name__ == "__main__": #Execução do sistema somente se o arquivo for rodado de forma direta
-    sistema_ecomatch()

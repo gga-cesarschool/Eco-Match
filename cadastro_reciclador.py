@@ -36,11 +36,11 @@ def salvar_recicladoras(recicladoras):
 
 # -------------------- SISTEMA --------------------
 
-def sistema_recicladoras():
+def cadastro_recicladoras():
     recicladoras = carregar_empresas_recicladoras() #Carrega os dados das recicladoras
     empresas_fornecedoras = carregar_empresas_fornecedoras()
 
-    print("=== SISTEMA DE RECICLADORAS ===")
+    print("=== CADASTRO DE EMPRESAS RECICLADORAS ===")
     while True:
         print("\n Menu:")
         print("1. Cadastrar Recicladora")
@@ -128,6 +128,3 @@ def sistema_recicladoras():
         else:
             print("Opção inválida.")
 
-#EXECUTA O SISTEMA APENAS SE O ARQUIVO FOR EXECUTADO DIRETAMENTE
-if __name__ == "__main__":
-    sistema_recicladoras()

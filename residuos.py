@@ -222,6 +222,3 @@ def sistema_residuos():
         else:
             print("Opção inválida.")
 
-
-if __name__ == "__main__":
-    sistema_residuos()

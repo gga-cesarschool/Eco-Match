@@ -1,5 +1,5 @@
-#Importando as classes para criar o pdf
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+# Importando as classes para criar o pdf
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
@@ -8,42 +8,55 @@ import json
 import os
 
 
-ROOT = Path(__file__).parent  #Definião de pasta atual do arquivo
-ARQUIVO_RESIDUOS = ROOT / "banco_de_dados" / "residuos.json" #Caminho do arquivo não reciclados
-ARQUIVO_RECICLADOS = ROOT / "banco_de_dados" / "residuos_reciclados.json" #Caminho do arquivo reciclados
-PDF_SAIDA = ROOT / "relatorio_reciclagem.pdf" #caminho onde o pdf final vai ser salvo
+ROOT = Path(__file__).parent  # Definição de pasta atual do arquivo
+ARQUIVO_RESIDUOS = ROOT / "banco_de_dados" / "residuos.json"  # Caminho do arquivo não reciclados
+ARQUIVO_RECICLADOS = ROOT / "banco_de_dados" / "residuos_reciclados.json"  # Caminho do arquivo reciclados
+
+LOGO = ROOT / "images" / "logo.jpeg"  # <-- coloque sua logo aqui
+PDF_SAIDA = ROOT / "relatorio_reciclagem.pdf"  # caminho onde o pdf final vai ser salvo
 
 
-def carregar_ou_vazio(caminho, padrao): #Define função genérica para carregar JSON ou retornar valor padrão
-    if os.path.exists(caminho): #verificação de existencia do arquivo
-        try: #tentativa de carregamento e abertura do json
+def carregar_ou_vazio(caminho, padrao):
+    if os.path.exists(caminho):
+        try:
             with open(caminho, "r", encoding="utf-8") as f:
                 return json.load(f)
         except:
-            return padrao #Caso de erro, retorna padrão
-    return padrao # se não existir arquivo, retorna padrão
+            return padrao
+    return padrao
 
 
-def gerar_pdf(): # gera o pdf por meio dessa função
-    residuos = carregar_ou_vazio(ARQUIVO_RESIDUOS, []) #carrega a lista dos resíduos pendentes ou retorna a lista sem nada
-    reciclados = carregar_ou_vazio(ARQUIVO_RECICLADOS, []) # <-- mesma coisa que o de cima porém dos reciclados
+def gerar_pdf():
+    residuos = carregar_ou_vazio(ARQUIVO_RESIDUOS, [])
+    reciclados = carregar_ou_vazio(ARQUIVO_RECICLADOS, [])
 
-    styles = getSampleStyleSheet() #estilos de textos pré-definidos. O que foi feito no design
+    styles = getSampleStyleSheet()
     pdf = SimpleDocTemplate(str(PDF_SAIDA), pagesize=A4)
-    conteudo = [] # o que irá pra o pdf fica nessa lista
+    conteudo = []
 
-    # Título
-    conteudo.append(Paragraph("<b>Relatório de Reciclagem</b>", styles["Title"])) #parte do design do pdf
-    conteudo.append(Spacer(1, 20)) #add espaço de 20 pixels
+    # ---------------------- LOGO DA EMPRESA ----------------------
+    if LOGO.exists():
+        try:
+            img = Image(str(LOGO))
+            img.drawHeight = 60  # altura da logo
+            img.drawWidth = 60   # largura da logo
+            conteudo.append(img)
+            conteudo.append(Spacer(1, 20))
+        except Exception as e:
+            print("Erro ao carregar a logo:", e)
 
-    # Resíduos pendentes 
-    conteudo.append(Paragraph("<b>Resíduos disponíveis (não reciclados):</b>", styles["Heading2"])) #add título
-    conteudo.append(Spacer(1, 10)) #add espaço de separação
+    # ---------------------- TÍTULO ----------------------
+    conteudo.append(Paragraph("<b>Relatório de Reciclagem</b>", styles["Title"]))
+    conteudo.append(Spacer(1, 20))
+
+    # ====================== RESÍDUOS PENDENTES ======================
+    conteudo.append(Paragraph("<b>Resíduos disponíveis (não reciclados):</b>", styles["Heading2"]))
+    conteudo.append(Spacer(1, 10))
 
     if residuos:
-        tabela_residuos = [["Nome", "Tipo", "Peso (kg)", "Origem", "Fornecedor"]] #add linha de cabeçalho da tabela
+        tabela_residuos = [["Nome", "Tipo", "Peso (kg)", "Origem", "Fornecedor"]]
 
-        for r in residuos: # a cada resíduo criado, vai  uma linha na tabela usando "-" se faltar campo
+        for r in residuos:
             tabela_residuos.append([
                 r.get("nome", "-"),
                 r.get("tipo", "-"),
@@ -52,28 +65,28 @@ def gerar_pdf(): # gera o pdf por meio dessa função
                 r.get("cnpj_fornecedor", "-"),
             ])
 
-        tabela = Table(tabela_residuos, repeatRows=1) # criação da tabela ; repeatRows é pra q o cabeçalho seja repetido em novas páginas
+        tabela = Table(tabela_residuos, repeatRows=1)
         tabela.setStyle(TableStyle([
             ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),
             ("GRID", (0, 0), (-1, -1), 1, colors.black),
             ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ])) #design do cabeçalho
+        ]))
 
-        conteudo.append(tabela) #insere a tabela no pdf
+        conteudo.append(tabela)
     else:
         conteudo.append(Paragraph("Nenhum resíduo pendente.", styles["BodyText"]))
 
-    conteudo.append(Spacer(1, 20)) #espacinho para a próxima seção
+    conteudo.append(Spacer(1, 20))
 
-    # Resíduos reciclados
-    conteudo.append(Paragraph("<b>Resíduos reciclados:</b>", styles["Heading2"])) #título dessa parte
-    conteudo.append(Spacer(1, 10)) #add espaço
+    # ====================== RESÍDUOS RECICLADOS ======================
+    conteudo.append(Paragraph("<b>Resíduos reciclados:</b>", styles["Heading2"]))
+    conteudo.append(Spacer(1, 10))
 
     if reciclados:
-        tabela_reciclados = [["Nome", "Tipo", "Peso (kg)", "Origem", "Fornecedor", "Recicladora"]] #cabeçalho da tabela
+        tabela_reciclados = [["Nome", "Tipo", "Peso (kg)", "Origem", "Fornecedor", "Recicladora"]]
 
-        for r in reciclados: #preenchimento da tabela com os dados
+        for r in reciclados:
             tabela_reciclados.append([
                 r.get("nome", "-"),
                 r.get("tipo", "-"),
@@ -83,22 +96,22 @@ def gerar_pdf(): # gera o pdf por meio dessa função
                 r.get("cnpj_recicladora", "-"),
             ])
 
-        tabela = Table(tabela_reciclados, repeatRows=1) #criação da tabela com cabeçalhos repetidos
+        tabela = Table(tabela_reciclados, repeatRows=1)
         tabela.setStyle(TableStyle([
             ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),
             ("GRID", (0, 0), (-1, -1), 1, colors.black),
             ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ])) #design da tabela
+        ]))
 
-        conteudo.append(tabela) #add tabela ao pdf
+        conteudo.append(tabela)
     else:
         conteudo.append(Paragraph("Nenhum resíduo reciclado ainda.", styles["BodyText"]))
 
-    # Salvar PDF
-    pdf.build(conteudo) #o que constrói o pdf
-    print(f" Relatório gerado com sucesso: {PDF_SAIDA}")
+    # ---------------------- SALVAR PDF ----------------------
+    pdf.build(conteudo)
+    print(f"📄 Relatório gerado com sucesso: {PDF_SAIDA}")
 
 
-if __name__ == "__main__": #execução da função
+if __name__ == "__main__":
     gerar_pdf()

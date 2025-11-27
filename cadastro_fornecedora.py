@@ -37,8 +37,9 @@ def sistema_ecomatch():
     empresas_fornecedoras = carregar_empresas_fornecedoras()
     empresas_recicladoras = carregar_empresas_recicladoras()
 
+    print("=== Bem-vindo ao Sistema Eco-Match! ===")
     while True:
-        print(" === Bem-vindo ao Sistema Eco-Match! ===")
+        print("\n Menu:")
         print("1. Cadastrar Empresa")
         print("2. Validar Cadastro")
         print("3. Listar empresas")

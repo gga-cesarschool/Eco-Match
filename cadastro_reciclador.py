@@ -40,8 +40,9 @@ def sistema_recicladoras():
     recicladoras = carregar_empresas_recicladoras() #Carrega os dados das recicladoras
     empresas_fornecedoras = carregar_empresas_fornecedoras()
 
+    print("=== SISTEMA DE RECICLADORAS ===")
     while True:
-        print("\n=== SISTEMA DE RECICLADORAS ===")
+        print("\n Menu:")
         print("1. Cadastrar Recicladora")
         print("2. Validar Cadastro (Login)")
         print("3. Listar Recicladoras")

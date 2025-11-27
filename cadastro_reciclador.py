@@ -36,7 +36,7 @@ def salvar_recicladoras(recicladoras):
 
 # -------------------- SISTEMA --------------------
 
-def cadastro_recicladoras():
+def sistema_cadastro_recicladoras():
     recicladoras = carregar_empresas_recicladoras() #Carrega os dados das recicladoras
     empresas_fornecedoras = carregar_empresas_fornecedoras()
 

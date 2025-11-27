@@ -33,7 +33,7 @@ def salvar_empresas(empresas):
 
 #Sistema EcoMatch
 
-def sistema_ecomatch():
+def sistema_cadastro_fornecedoras():
     empresas_fornecedoras = carregar_empresas_fornecedoras()
     empresas_recicladoras = carregar_empresas_recicladoras()
 

@@ -1,5 +1,5 @@
-from cadastro_fornecedora import sistema_ecomatch
-from cadastro_reciclador import cadastro_recicladoras
+from cadastro_fornecedora import sistema_cadastro_fornecedoras
+from cadastro_reciclador import sistema_cadastro_recicladoras
 from reciclagem import sistema_recicladora
 from relatorio import gerar_pdf
 from residuos import sistema_residuos
@@ -19,11 +19,11 @@ if __name__ == "__main__":
 
         #Cadastro das empresas
         if opcao == "1":
-            sistema_ecomatch()
+            sistema_cadastro_fornecedoras()
 
         #Validação do cadastro
         elif opcao == "2":
-           cadastro_recicladoras()
+            sistema_cadastro_recicladoras()
 
         # Listagem de empresas
         elif opcao == "3":
